@@ -15,7 +15,7 @@ from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
-#
+
 from eval import evaluate
 
 os.makedirs("images", exist_ok=True)
@@ -23,7 +23,7 @@ os.makedirs("images", exist_ok=True)
 parser = argparse.ArgumentParser()
 parser.add_argument("--n_epochs", type=int, default=5, help="number of epochs of training")
 parser.add_argument("--batch_size", type=int, default=64, help="size of the batches")
-parser.add_argument("--lr", type=float, default=0.002, help="adam: learning rate")
+parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
@@ -146,6 +146,8 @@ class Discriminator(nn.Module):
 
         out = self.model(img)
         out = out.squeeze()
+        import IPython
+        IPython.embed()
 
         validity = self.adv_layer(out)
         label = self.aux_layer(out)
