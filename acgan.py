@@ -58,30 +58,6 @@ class ResBlock(nn.Module):
     def forward(self, x):
         return F.relu(self.norm(self.conv(x)+x))
 
-'''
-class Generator(nn.Module):
-    def __init__(self, f=opt.img_size, blocks=6):
-        super(Generator, self).__init__()
-        self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
-        layers = [nn.ReflectionPad2d(3),
-                  nn.Conv2d(  3,   f, 7, 1, 0), norm_layer(  f), nn.ReLU(True),
-                  nn.Conv2d(  f, 2*f, 3, 2, 1), norm_layer(2*f), nn.ReLU(True),
-                  nn.Conv2d(2*f, 4*f, 3, 2, 1), norm_layer(4*f), nn.ReLU(True)]
-        for i in range(int(blocks)):
-            layers.append(ResBlock(4*f))
-        layers.extend([
-                nn.ConvTranspose2d(4*f, 4*2*f, 3, 1, 1), nn.PixelShuffle(2), norm_layer(2*f), nn.ReLU(True),
-                nn.ConvTranspose2d(2*f,   4*f, 3, 1, 1), nn.PixelShuffle(2), norm_layer(  f), nn.ReLU(True),
-                nn.ReflectionPad2d(3), nn.Conv2d(f, 3, 7, 1, 0),
-                nn.Tanh()])
-        self.conv = nn.Sequential(*layers)
-
-    def forward(self, noise, labels):
-        gen_input = torch.mul(self.label_emb(labels), noise)
-
-        return self.conv(gen_input)
-
-'''
 class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
@@ -89,16 +65,16 @@ class Generator(nn.Module):
         self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
 
         self.init_size = opt.img_size // 4  # Initial size before upsampling
-        self.l1 = nn.Sequential(nn.Linear(opt.latent_dim, 128 * self.init_size ** 2))
+        self.l1 = nn.Sequential(nn.Linear(opt.latent_dim, opt.img_size * self.init_size ** 2))
 
         self.conv_blocks = nn.Sequential(
-            nn.BatchNorm2d(128),
+            nn.BatchNorm2d(opt.img_size),
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(128, 128, 3, stride=1, padding=1),
-            nn.BatchNorm2d(128, 0.8),
+            nn.Conv2d(opt.img_size, opt.img_size, 3, stride=1, padding=1),
+            nn.BatchNorm2d(opt.img_size, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(128, 64, 3, stride=1, padding=1),
+            nn.Conv2d(opt.img_size, 64, 3, stride=1, padding=1),
             nn.BatchNorm2d(64, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(64, opt.channels, 3, stride=1, padding=1),
@@ -108,7 +84,7 @@ class Generator(nn.Module):
     def forward(self, noise, labels):
         gen_input = torch.cat((self.label_emb(labels), noise), 1) # concat
         out = self.l1(gen_input)
-        out = out.view(out.shape[0], 128, self.init_size, self.init_size)
+        out = out.view(out.shape[0], opt.img_size, self.init_size, self.init_size)
         img = self.conv_blocks(out)
         return img
 
@@ -128,15 +104,14 @@ class Discriminator(nn.Module):
             *discriminator_block(opt.channels, 16, bn=False),
             *discriminator_block(16, 32),
             *discriminator_block(32, 64),
-            *discriminator_block(64, 128),
+            *discriminator_block(64, opt.img_size),
         )
 
         # The height and width of downsampled image
         ds_size = opt.img_size // 2 ** 4
         '''
         model = models.inception_v3(pretrained=True, aux_logits=False)
-        model = torch.nn.Sequential(*(list(model.children())[:-1]))
-        self.model = model
+        self.model = torch.nn.Sequential(*(list(model.children())[:-1]))
 
         # Output layers
         self.adv_layer = nn.Sequential(nn.Linear(2048, 1), nn.Sigmoid())
