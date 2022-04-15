@@ -6,6 +6,7 @@ import pretty_errors
 
 import torchvision.transforms as transforms
 from torchvision.utils import save_image
+from torchvision import models
 
 from torch.utils.data import DataLoader
 from torchvision import datasets
@@ -132,6 +133,9 @@ class Discriminator(nn.Module):
         # The height and width of downsampled image
         ds_size = opt.img_size // 2 ** 4
 
+        model = models.resnet50(pretrained=True)
+        model = torch.nn.Sequential(*(list(model.children())[:-1]))
+        self.model = model
         # Output layers
         self.adv_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, 1), nn.Sigmoid())
         self.aux_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, opt.n_classes), nn.Softmax())
