@@ -175,7 +175,7 @@ discriminator.apply(weights_init_normal)
 # Configure data loader
 os.makedirs("../../data/mnist", exist_ok=True)
 
-dataroot = "..//dcgan//datasets//office-31-intact//amazon//images//"
+dataroot = "..//dcgan//datasets//office-31-intact//webcam//images//"
 
 dataset = datasets.ImageFolder(root=dataroot,
                            transform=transforms.Compose([
