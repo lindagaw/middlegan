@@ -135,8 +135,8 @@ dataroot = "..//dcgan//datasets//office-31-intact//amazon//images//"
 
 dataset = datasets.ImageFolder(root=dataroot,
                            transform=transforms.Compose([
-                               transforms.Resize(image_size),
-                               transforms.CenterCrop(image_size),
+                               transforms.Resize(opt.img_size),
+                               transforms.CenterCrop(opt.img_size),
                                transforms.ToTensor(),
                                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                            ]))
