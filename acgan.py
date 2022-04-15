@@ -73,7 +73,7 @@ class Generator(nn.Module):
                 nn.Tanh()])
         self.conv = nn.Sequential(*layers)
 
-    def def forward(self, noise, labels):
+    def forward(self, noise, labels):
         gen_input = torch.mul(self.label_emb(labels), noise)
         return self.conv(gen_input)
 
