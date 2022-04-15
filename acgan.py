@@ -130,27 +130,21 @@ discriminator.apply(weights_init_normal)
 
 # Configure data loader
 os.makedirs("../../data/mnist", exist_ok=True)
-dataloader = torch.utils.data.DataLoader(
-    datasets.MNIST(
-        "../../data/mnist",
-        train=True,
-        download=True,
-        transform=transforms.Compose([transforms.Resize(opt.img_size), transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]),
-    ),
-    batch_size=opt.batch_size,
-    shuffle=True,
-)
 
-dataloader_test = torch.utils.data.DataLoader(
-    datasets.MNIST(
-        "../../data/mnist",
-        train=False,
-        download=True,
-        transform=transforms.Compose([transforms.Resize(opt.img_size), transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]),
-    ),
-    batch_size=opt.batch_size,
-    shuffle=True,
-)
+dataroot = "..//dcgan//datasets//office-31-intact//amazon//images//"
+
+dataset = datasets.ImageFolder(root=dataroot,
+                           transform=transforms.Compose([
+                               transforms.Resize(image_size),
+                               transforms.CenterCrop(image_size),
+                               transforms.ToTensor(),
+                               transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                           ]))
+
+train_set, test_set = torch.utils.data.random_split(dataset, [int(len(dataset)*0.8), len(dataset)-int(len(dataset)*0.8)])
+dataloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
+dataloader_test = torch.utils.data.DataLoader(test_set, batch_size=batch_size, shuffle=True)
+
 
 # Optimizers
 optimizer_G = torch.optim.Adam(generator.parameters(), lr=opt.lr, betas=(opt.b1, opt.b2))
