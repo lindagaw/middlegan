@@ -3,7 +3,6 @@ import os
 import numpy as np
 import math
 import pretty_errors
-import random
 
 import torchvision.transforms as transforms
 from torchvision.utils import save_image
@@ -58,6 +57,30 @@ class ResBlock(nn.Module):
     def forward(self, x):
         return F.relu(self.norm(self.conv(x)+x))
 
+'''
+class Generator(nn.Module):
+    def __init__(self, f=opt.img_size, blocks=6):
+        super(Generator, self).__init__()
+        self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
+        layers = [nn.ReflectionPad2d(3),
+                  nn.Conv2d(  3,   f, 7, 1, 0), norm_layer(  f), nn.ReLU(True),
+                  nn.Conv2d(  f, 2*f, 3, 2, 1), norm_layer(2*f), nn.ReLU(True),
+                  nn.Conv2d(2*f, 4*f, 3, 2, 1), norm_layer(4*f), nn.ReLU(True)]
+        for i in range(int(blocks)):
+            layers.append(ResBlock(4*f))
+        layers.extend([
+                nn.ConvTranspose2d(4*f, 4*2*f, 3, 1, 1), nn.PixelShuffle(2), norm_layer(2*f), nn.ReLU(True),
+                nn.ConvTranspose2d(2*f,   4*f, 3, 1, 1), nn.PixelShuffle(2), norm_layer(  f), nn.ReLU(True),
+                nn.ReflectionPad2d(3), nn.Conv2d(f, 3, 7, 1, 0),
+                nn.Tanh()])
+        self.conv = nn.Sequential(*layers)
+
+    def forward(self, noise, labels):
+        gen_input = torch.mul(self.label_emb(labels), noise)
+
+        return self.conv(gen_input)
+
+'''
 class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
@@ -65,16 +88,16 @@ class Generator(nn.Module):
         self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
 
         self.init_size = opt.img_size // 4  # Initial size before upsampling
-        self.l1 = nn.Sequential(nn.Linear(opt.latent_dim, opt.img_size * self.init_size ** 2))
+        self.l1 = nn.Sequential(nn.Linear(opt.latent_dim, 128 * self.init_size ** 2))
 
         self.conv_blocks = nn.Sequential(
-            nn.BatchNorm2d(opt.img_size),
+            nn.BatchNorm2d(128),
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(opt.img_size, opt.img_size, 3, stride=1, padding=1),
-            nn.BatchNorm2d(opt.img_size, 0.8),
+            nn.Conv2d(128, 128, 3, stride=1, padding=1),
+            nn.BatchNorm2d(128, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(opt.img_size, 64, 3, stride=1, padding=1),
+            nn.Conv2d(128, 64, 3, stride=1, padding=1),
             nn.BatchNorm2d(64, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(64, opt.channels, 3, stride=1, padding=1),
@@ -82,7 +105,7 @@ class Generator(nn.Module):
         )
 
     def forward(self, noise, labels):
-        gen_input = torch.cat((self.label_emb(labels), noise), 1) # concat
+        gen_input = torch.mul(self.label_emb(labels), noise)
         out = self.l1(gen_input)
         out = out.view(out.shape[0], opt.img_size, self.init_size, self.init_size)
         img = self.conv_blocks(out)
@@ -104,20 +127,22 @@ class Discriminator(nn.Module):
             *discriminator_block(opt.channels, 16, bn=False),
             *discriminator_block(16, 32),
             *discriminator_block(32, 64),
-            *discriminator_block(64, opt.img_size),
+            *discriminator_block(64, 128),
         )
 
         # The height and width of downsampled image
         ds_size = opt.img_size // 2 ** 4
         '''
-        model = models.inception_v3(pretrained=True, aux_logits=False)
-        self.model = torch.nn.Sequential(*(list(model.children())[:-1]))
-
+        model = models.resnet50(pretrained=True)
+        model = torch.nn.Sequential(*(list(model.children())[:-1]))
+        self.model = model
         # Output layers
         self.adv_layer = nn.Sequential(nn.Linear(2048, 1), nn.Sigmoid())
         self.aux_layer = nn.Sequential(nn.Linear(2048, opt.n_classes))
 
     def forward(self, img):
+        # out = self.conv_blocks(img)
+        # out = out.view(out.shape[0], -1)
 
         out = self.model(img)
         out = out.squeeze()
@@ -144,36 +169,20 @@ if cuda:
 
 # Initialize weights
 generator.apply(weights_init_normal)
-#discriminator.apply(weights_init_normal)
+discriminator.apply(weights_init_normal)
 
 # Configure data loader
 os.makedirs("../../data/mnist", exist_ok=True)
 
-dataroot = "..//dcgan//datasets//office-31-intact//webcam//images//"
-
-import torchvision.transforms as T
-train_transforms = T.Compose([
-        T.Resize((256, 256)),
-        T.RandomCrop((224, 224)),
-        T.RandomHorizontalFlip(),
-        T.ToTensor(),
-        T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
-val_transforms = T.Compose([
-    T.Resize((256, 256)),
-    T.CenterCrop((224, 224)),
-    T.ToTensor(),
-    T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-])
+dataroot = "..//dcgan//datasets//office-31-intact//amazon//images//"
 
 dataset = datasets.ImageFolder(root=dataroot,
-                           transform=train_transforms)
-# Set random seed for reproducibility
-manualSeed = 1999
-#manualSeed = random.randint(1, 10000) # use if you want new results
-print("Random Seed: ", manualSeed)
-random.seed(manualSeed)
-torch.manual_seed(manualSeed)
+                           transform=transforms.Compose([
+                               transforms.Resize(opt.img_size),
+                               transforms.CenterCrop(opt.img_size),
+                               transforms.ToTensor(),
+                               transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                           ]))
 
 train_set, test_set = torch.utils.data.random_split(dataset, [int(len(dataset)*0.8), len(dataset)-int(len(dataset)*0.8)])
 dataloader = torch.utils.data.DataLoader(train_set, batch_size=opt.batch_size, shuffle=True)
@@ -254,10 +263,11 @@ for epoch in range(opt.n_epochs):
         d_loss = (d_real_loss + d_fake_loss) / 2
 
         # Calculate discriminator accuracy
-        pred = np.concatenate([real_aux.data.cpu().numpy(), fake_aux.data.cpu().numpy()], axis=0)
-        gt = np.concatenate([labels.data.cpu().numpy(), gen_labels.data.cpu().numpy()], axis=0)
-        # pred = np.concatenate([real_aux.data.cpu().numpy()], axis=0)
-        # gt = np.concatenate([labels.data.cpu().numpy()], axis=0)
+        # pred = np.concatenate([real_aux.data.cpu().numpy(), fake_aux.data.cpu().numpy()], axis=0)
+
+        # gt = np.concatenate([labels.data.cpu().numpy(), gen_labels.data.cpu().numpy()], axis=0)
+        pred = np.concatenate([real_aux.data.cpu().numpy()], axis=0)
+        gt = np.concatenate([labels.data.cpu().numpy()], axis=0)
 
         d_acc = np.mean(np.argmax(pred, axis=1) == gt)
 
@@ -271,4 +281,5 @@ for epoch in range(opt.n_epochs):
         batches_done = epoch * len(dataloader) + i
         if batches_done % opt.sample_interval == 0:
             sample_image(n_row=10, batches_done=batches_done)
-    evaluate(discriminator, dataloader_test)
+
+evaluate(discriminator, dataloader_test)
