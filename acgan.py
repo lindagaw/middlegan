@@ -287,4 +287,4 @@ for epoch in range(opt.n_epochs):
         batches_done = epoch * len(dataloader) + i
         if batches_done % opt.sample_interval == 0:
             sample_image(n_row=10, batches_done=batches_done)
-    evaluate(discriminator, dataloader)
+    evaluate(discriminator, dataloader_test)
