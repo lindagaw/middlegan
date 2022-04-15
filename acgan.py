@@ -59,9 +59,8 @@ class Generator(nn.Module):
 
 
     def __init__(self, f=opt.img_size, blocks=6):
-        self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
-        
         super(Generator, self).__init__()
+        self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
         layers = [nn.ReflectionPad2d(3),
                   nn.Conv2d(  3,   f, 7, 1, 0), norm_layer(  f), nn.ReLU(True),
                   nn.Conv2d(  f, 2*f, 3, 2, 1), norm_layer(2*f), nn.ReLU(True),
