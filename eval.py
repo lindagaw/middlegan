@@ -23,6 +23,10 @@ def evaluate(classifier, data_loader):
     criterion = nn.CrossEntropyLoss()
 
     # evaluate network
+
+    import IPython
+    IPython.embed()
+    
     for (images, labels) in data_loader:
         images = make_variable(images, volatile=True)
         labels = make_variable(labels)
