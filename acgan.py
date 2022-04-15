@@ -106,9 +106,6 @@ class Generator(nn.Module):
         )
 
     def forward(self, noise, labels):
-        import IPython
-        IPython.embed()
-
         gen_input = torch.cat((self.label_emb(labels), noise), 1) # concat
         out = self.l1(gen_input)
         out = out.view(out.shape[0], 128, self.init_size, self.init_size)
