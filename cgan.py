@@ -40,7 +40,9 @@ class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
 
-        self.init_size = opt.img_size // 4
+        self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
+
+        self.init_size = opt.img_size // 4  # Initial size before upsampling
         self.l1 = nn.Sequential(nn.Linear(opt.latent_dim, 128 * self.init_size ** 2))
 
         self.conv_blocks = nn.Sequential(
@@ -57,11 +59,13 @@ class Generator(nn.Module):
             nn.Tanh(),
         )
 
-    def forward(self, z):
-        out = self.l1(z)
+    def forward(self, noise, labels):
+        gen_input = torch.mul(self.label_emb(labels), noise)
+        out = self.l1(gen_input)
         out = out.view(out.shape[0], 128, self.init_size, self.init_size)
         img = self.conv_blocks(out)
         return img
+
 
 class Discriminator(nn.Module):
     def __init__(self):
