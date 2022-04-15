@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch.optim as optim
+import torch
 
 def make_variable(tensor, volatile=False):
     """Convert Tensor to Variable."""
