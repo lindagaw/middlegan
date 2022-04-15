@@ -138,7 +138,7 @@ class Discriminator(nn.Module):
         self.model = model
         # Output layers
         self.adv_layer = nn.Sequential(nn.Linear(2048, 1), nn.Sigmoid())
-        self.aux_layer = nn.Sequential(nn.Linear(2048, opt.n_classes), nn.Softmax())
+        self.aux_layer = nn.Sequential(nn.Linear(2048, opt.n_classes))
 
     def forward(self, img):
         # out = self.conv_blocks(img)
