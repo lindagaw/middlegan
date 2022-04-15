@@ -145,8 +145,7 @@ class Discriminator(nn.Module):
         # out = out.view(out.shape[0], -1)
 
         out = self.model(img)
-        import IPython
-        IPython.embed()
+        out = out.squeeze()
 
         validity = self.adv_layer(out)
         label = self.aux_layer(out)
