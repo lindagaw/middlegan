@@ -141,8 +141,13 @@ class Discriminator(nn.Module):
         self.aux_layer = nn.Sequential(nn.Linear(2048, opt.n_classes), nn.Softmax())
 
     def forward(self, img):
-        out = self.conv_blocks(img)
-        out = out.view(out.shape[0], -1)
+        # out = self.conv_blocks(img)
+        # out = out.view(out.shape[0], -1)
+
+        out = self.model(img)
+        import IPython
+        IPython.embed()
+
         validity = self.adv_layer(out)
         label = self.aux_layer(out)
 
