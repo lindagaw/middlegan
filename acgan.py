@@ -57,7 +57,6 @@ class ResBlock(nn.Module):
         return F.relu(self.norm(self.conv(x)+x))
 
 class Generator(nn.Module):
-
     def __init__(self, f=opt.img_size, blocks=6):
         super(Generator, self).__init__()
         self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
@@ -76,6 +75,9 @@ class Generator(nn.Module):
 
     def forward(self, noise, labels):
         gen_input = torch.mul(self.label_emb(labels), noise)
+
+        import IPython
+        IPython.embed()
         return self.conv(gen_input)
 
 '''
