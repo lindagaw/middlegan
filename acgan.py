@@ -115,7 +115,7 @@ class Generator(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
-
+        '''
         def discriminator_block(in_filters, out_filters, bn=True):
             """Returns layers of each discriminator block"""
             block = [nn.Conv2d(in_filters, out_filters, 3, 2, 1), nn.LeakyReLU(0.2, inplace=True), nn.Dropout2d(0.25)]
@@ -132,7 +132,7 @@ class Discriminator(nn.Module):
 
         # The height and width of downsampled image
         ds_size = opt.img_size // 2 ** 4
-
+        '''
         model = models.resnet50(pretrained=True)
         model = torch.nn.Sequential(*(list(model.children())[:-1]))
         self.model = model
@@ -146,8 +146,6 @@ class Discriminator(nn.Module):
 
         out = self.model(img)
         out = out.squeeze()
-        import IPython
-        IPython.embed()
 
         validity = self.adv_layer(out)
         label = self.aux_layer(out)
