@@ -30,7 +30,7 @@ parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of firs
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
 parser.add_argument("--latent_dim", type=int, default=100, help="dimensionality of the latent space")
 parser.add_argument("--n_classes", type=int, default=31, help="number of classes for dataset")
-parser.add_argument("--img_size", type=int, default=128, help="size of each image dimension")
+parser.add_argument("--img_size", type=int, default=299, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
 parser.add_argument("--sample_interval", type=int, default=400, help="interval between image sampling")
 opt = parser.parse_args()
@@ -119,7 +119,7 @@ class Generator(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
-
+        '''
         def discriminator_block(in_filters, out_filters, bn=True):
             """Returns layers of each discriminator block"""
             block = [nn.Conv2d(in_filters, out_filters, 3, 2, 1), nn.LeakyReLU(0.2, inplace=True), nn.Dropout2d(0.25)]
@@ -137,20 +137,18 @@ class Discriminator(nn.Module):
         # The height and width of downsampled image
         ds_size = opt.img_size // 2 ** 4
         '''
-        model = models.resnet50(pretrained=True)
+        model = models.inception_v3(pretrained=pretrain, aux_logits=False)
         model = torch.nn.Sequential(*(list(model.children())[:-1]))
         self.model = model
-        '''
+
         # Output layers
-        self.adv_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, 1), nn.Sigmoid())
-        self.aux_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, opt.n_classes))
+        self.adv_layer = nn.Sequential(nn.Linear(2048, 1), nn.Sigmoid())
+        self.aux_layer = nn.Sequential(nn.Linear(2048, opt.n_classes))
 
     def forward(self, img):
-        out = self.conv_blocks(img)
-        out = out.view(out.shape[0], -1)
 
-        # out = self.model(img)
-        # out = out.squeeze()
+        out = self.model(img)
+        out = out.squeeze()
 
         validity = self.adv_layer(out)
         label = self.aux_layer(out)
