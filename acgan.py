@@ -137,7 +137,7 @@ class Discriminator(nn.Module):
         # The height and width of downsampled image
         ds_size = opt.img_size // 2 ** 4
         '''
-        model = models.inception_v3(pretrained=pretrain, aux_logits=False)
+        model = models.inception_v3(pretrained=True, aux_logits=False)
         model = torch.nn.Sequential(*(list(model.children())[:-1]))
         self.model = model
 
