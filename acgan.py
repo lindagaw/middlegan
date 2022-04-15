@@ -115,7 +115,7 @@ class Generator(nn.Module):
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
-        '''
+
         def discriminator_block(in_filters, out_filters, bn=True):
             """Returns layers of each discriminator block"""
             block = [nn.Conv2d(in_filters, out_filters, 3, 2, 1), nn.LeakyReLU(0.2, inplace=True), nn.Dropout2d(0.25)]
@@ -136,16 +136,17 @@ class Discriminator(nn.Module):
         model = models.resnet50(pretrained=True)
         model = torch.nn.Sequential(*(list(model.children())[:-1]))
         self.model = model
+        '''
         # Output layers
-        self.adv_layer = nn.Sequential(nn.Linear(2048, 1), nn.Sigmoid())
-        self.aux_layer = nn.Sequential(nn.Linear(2048, opt.n_classes))
+        self.adv_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, 1), nn.Sigmoid())
+        self.aux_layer = nn.Sequential(nn.Linear(128 * ds_size ** 2, opt.n_classes))
 
     def forward(self, img):
-        # out = self.conv_blocks(img)
-        # out = out.view(out.shape[0], -1)
+        out = self.conv_blocks(img)
+        out = out.view(out.shape[0], -1)
 
-        out = self.model(img)
-        out = out.squeeze()
+        # out = self.model(img)
+        # out = out.squeeze()
 
         validity = self.adv_layer(out)
         label = self.aux_layer(out)
