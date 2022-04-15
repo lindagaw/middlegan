@@ -56,9 +56,11 @@ class ResBlock(nn.Module):
         return F.relu(self.norm(self.conv(x)+x))
 
 class Generator(nn.Module):
-    self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
+
 
     def __init__(self, f=opt.img_size, blocks=6):
+        self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
+        
         super(Generator, self).__init__()
         layers = [nn.ReflectionPad2d(3),
                   nn.Conv2d(  3,   f, 7, 1, 0), norm_layer(  f), nn.ReLU(True),
