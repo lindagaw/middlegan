@@ -20,7 +20,7 @@ from eval import evaluate
 os.makedirs("images", exist_ok=True)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--n_epochs", type=int, default=1, help="number of epochs of training")
+parser.add_argument("--n_epochs", type=int, default=5, help="number of epochs of training")
 parser.add_argument("--batch_size", type=int, default=64, help="size of the batches")
 parser.add_argument("--lr", type=float, default=0.0002, help="adam: learning rate")
 parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first order momentum of gradient")
@@ -56,6 +56,7 @@ class ResBlock(nn.Module):
     def forward(self, x):
         return F.relu(self.norm(self.conv(x)+x))
 
+'''
 class Generator(nn.Module):
     def __init__(self, f=opt.img_size, blocks=6):
         super(Generator, self).__init__()
@@ -76,8 +77,6 @@ class Generator(nn.Module):
     def forward(self, noise, labels):
         gen_input = torch.mul(self.label_emb(labels), noise)
 
-        import IPython
-        IPython.embed()
         return self.conv(gen_input)
 
 '''
@@ -110,7 +109,7 @@ class Generator(nn.Module):
         out = out.view(out.shape[0], opt.img_size, self.init_size, self.init_size)
         img = self.conv_blocks(out)
         return img
-'''
+
 
 class Discriminator(nn.Module):
     def __init__(self):
