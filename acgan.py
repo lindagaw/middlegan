@@ -58,7 +58,6 @@ class ResBlock(nn.Module):
 
 class Generator(nn.Module):
 
-
     def __init__(self, f=opt.img_size, blocks=6):
         super(Generator, self).__init__()
         self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
