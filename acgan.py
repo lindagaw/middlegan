@@ -142,8 +142,8 @@ dataset = datasets.ImageFolder(root=dataroot,
                            ]))
 
 train_set, test_set = torch.utils.data.random_split(dataset, [int(len(dataset)*0.8), len(dataset)-int(len(dataset)*0.8)])
-dataloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
-dataloader_test = torch.utils.data.DataLoader(test_set, batch_size=batch_size, shuffle=True)
+dataloader = torch.utils.data.DataLoader(train_set, batch_size=opt.batch_size, shuffle=True)
+dataloader_test = torch.utils.data.DataLoader(test_set, batch_size=opt.batch_size, shuffle=True)
 
 
 # Optimizers
