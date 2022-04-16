@@ -29,9 +29,9 @@ parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of firs
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
 parser.add_argument("--latent_dim", type=int, default=100, help="dimensionality of the latent space")
 parser.add_argument("--n_classes", type=int, default=31, help="number of classes for dataset")
-parser.add_argument("--img_size", type=int, default=128, help="size of each image dimension")
+parser.add_argument("--img_size", type=int, default=299, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
-parser.add_argument("--sample_interval", type=int, default=400, help="interval between image sampling")
+parser.add_argument("--sample_interval", type=int, default=40, help="interval between image sampling")
 opt = parser.parse_args()
 print(opt)
 
@@ -181,7 +181,7 @@ dataset = datasets.ImageFolder(root=dataroot,
                                transforms.Resize(opt.img_size),
                                transforms.CenterCrop(opt.img_size),
                                transforms.ToTensor(),
-                               transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                               transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
                            ]))
 
 train_set, test_set = torch.utils.data.random_split(dataset, [int(len(dataset)*0.8), len(dataset)-int(len(dataset)*0.8)])
