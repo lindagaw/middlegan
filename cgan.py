@@ -62,7 +62,8 @@ class Generator(nn.Module):
     def forward(self, noise, labels):
         gen_input = torch.mul(self.label_emb(labels), noise)
         out = self.l1(gen_input)
-        out = out.view(out.shape[0], 128, self.init_size, self.init_size)
+        #out = out.view(out.shape[0], 128, self.init_size, self.init_size)
+        out = out.view(out.shape[0], opt.img_size)
         img = self.conv_blocks(out)
         return img
 
