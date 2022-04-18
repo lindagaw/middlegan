@@ -196,12 +196,11 @@ dataloader = torch.utils.data.DataLoader(
         train=True,
         download=True,
         transform=transforms.Compose(
-            [transforms.Resize(opt.img_size), transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]
+            [transforms.Grayscale(3), transforms.Resize(opt.img_size), transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]
         ),
     ),
     batch_size=opt.batch_size,
     shuffle=True,
-    transforms.Grayscale(3)
 )
 
 dataloader_test = torch.utils.data.DataLoader(
@@ -210,12 +209,12 @@ dataloader_test = torch.utils.data.DataLoader(
         train=False,
         download=True,
         transform=transforms.Compose(
-            [transforms.Resize(opt.img_size), transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]
+            [transforms.Grayscale(3), transforms.Resize(opt.img_size), transforms.ToTensor(), transforms.Normalize([0.5], [0.5])]
         ),
     ),
     batch_size=opt.batch_size,
     shuffle=True,
-    transforms.Grayscale(3)
+
 )
 
 # Optimizers
