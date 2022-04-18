@@ -28,7 +28,7 @@ parser.add_argument("--b1", type=float, default=0.5, help="adam: decay of first 
 parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of first order momentum of gradient")
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
 parser.add_argument("--latent_dim", type=int, default=100, help="dimensionality of the latent space")
-parser.add_argument("--n_classes", type=int, default=31, help="number of classes for dataset")
+parser.add_argument("--n_classes", type=int, default=10, help="number of classes for dataset")
 parser.add_argument("--img_size", type=int, default=128, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=1, help="number of image channels")
 parser.add_argument("--sample_interval", type=int, default=40, help="interval between image sampling")
@@ -192,7 +192,7 @@ dataloader_test = torch.utils.data.DataLoader(test_set, batch_size=opt.batch_siz
 
 dataloader = torch.utils.data.DataLoader(
     datasets.MNIST(
-        "/data/mnist",
+        "data/mnist",
         train=True,
         download=True,
         transform=transforms.Compose(
@@ -205,7 +205,7 @@ dataloader = torch.utils.data.DataLoader(
 
 dataloader_test = torch.utils.data.DataLoader(
     datasets.MNIST(
-        "/data/mnist",
+        "data/mnist",
         train=False,
         download=True,
         transform=transforms.Compose(
