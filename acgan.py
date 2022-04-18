@@ -201,6 +201,7 @@ dataloader = torch.utils.data.DataLoader(
     ),
     batch_size=opt.batch_size,
     shuffle=True,
+    transforms.Grayscale(3)
 )
 
 dataloader_test = torch.utils.data.DataLoader(
@@ -214,6 +215,7 @@ dataloader_test = torch.utils.data.DataLoader(
     ),
     batch_size=opt.batch_size,
     shuffle=True,
+    transforms.Grayscale(3)
 )
 
 # Optimizers
