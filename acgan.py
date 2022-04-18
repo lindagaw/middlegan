@@ -172,7 +172,7 @@ generator.apply(weights_init_normal)
 #discriminator.apply(weights_init_normal)
 
 # Configure data loader
-os.makedirs("../../data/mnist", exist_ok=True)
+os.makedirs("data/mnist", exist_ok=True)
 
 dataroot = "..//dcgan//datasets//office-31-intact//webcam//images//"
 
@@ -192,7 +192,7 @@ dataloader_test = torch.utils.data.DataLoader(test_set, batch_size=opt.batch_siz
 
 dataloader = torch.utils.data.DataLoader(
     datasets.MNIST(
-        "../../data/mnist",
+        "/data/mnist",
         train=True,
         download=True,
         transform=transforms.Compose(
@@ -205,7 +205,7 @@ dataloader = torch.utils.data.DataLoader(
 
 dataloader_test = torch.utils.data.DataLoader(
     datasets.MNIST(
-        "../../data/mnist",
+        "/data/mnist",
         train=False,
         download=True,
         transform=transforms.Compose(
