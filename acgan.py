@@ -29,7 +29,7 @@ parser.add_argument("--b2", type=float, default=0.999, help="adam: decay of firs
 parser.add_argument("--n_cpu", type=int, default=8, help="number of cpu threads to use during batch generation")
 parser.add_argument("--latent_dim", type=int, default=100, help="dimensionality of the latent space")
 parser.add_argument("--n_classes", type=int, default=31, help="number of classes for dataset")
-parser.add_argument("--img_size", type=int, default=256, help="size of each image dimension")
+parser.add_argument("--img_size", type=int, default=512, help="size of each image dimension")
 parser.add_argument("--channels", type=int, default=3, help="number of image channels")
 parser.add_argument("--sample_interval", type=int, default=40, help="interval between image sampling")
 opt = parser.parse_args()
@@ -107,7 +107,7 @@ class Generator(nn.Module):
     def forward(self, noise, labels):
         gen_input = torch.mul(self.label_emb(labels), noise)
         out = self.l1(gen_input)
-        #out = out.view(out.shape[0], opt.img_size, self.init_size, self.init_size)
+        out = out.view(out.shape[0], opt.img_size, self.init_size, self.init_size)
         img = self.conv_blocks(out)
         return img
 
