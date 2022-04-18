@@ -88,16 +88,16 @@ class Generator(nn.Module):
         self.label_emb = nn.Embedding(opt.n_classes, opt.latent_dim)
 
         self.init_size = opt.img_size // 8  # Initial size before upsampling
-        self.l1 = nn.Sequential(nn.Linear(opt.latent_dim, 128 * self.init_size ** 2))
+        self.l1 = nn.Sequential(nn.Linear(opt.latent_dim, 512 * self.init_size ** 2))
 
         self.conv_blocks = nn.Sequential(
-            nn.BatchNorm2d(128),
+            nn.BatchNorm2d(512),
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(128, 128, 3, stride=1, padding=1),
-            nn.BatchNorm2d(128, 0.8),
+            nn.Conv2d(512, 512, 3, stride=1, padding=1),
+            nn.BatchNorm2d(512, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Upsample(scale_factor=2),
-            nn.Conv2d(128, 64, 3, stride=1, padding=1),
+            nn.Conv2d(512, 64, 3, stride=1, padding=1),
             nn.BatchNorm2d(64, 0.8),
             nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(64, opt.channels, 3, stride=1, padding=1),
@@ -127,7 +127,7 @@ class Discriminator(nn.Module):
             *discriminator_block(opt.channels, 16, bn=False),
             *discriminator_block(16, 32),
             *discriminator_block(32, 64),
-            *discriminator_block(64, 128),
+            *discriminator_block(64, 512),
         )
 
         # The height and width of downsampled image
