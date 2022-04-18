@@ -245,6 +245,11 @@ for epoch in range(opt.n_epochs):
         # Total discriminator loss
         d_loss = (d_real_loss + d_fake_loss) / 2
 
+        # Update gradients for aux loss
+        criterion = nn.CrossEntropyLoss()
+        d_aux_loss = criterion(real_aux, labels)
+        d_aux_loss.backward()
+
         # Calculate discriminator accuracy
         pred = np.concatenate([real_aux.data.cpu().numpy(), fake_aux.data.cpu().numpy()], axis=0)
         gt = np.concatenate([labels.data.cpu().numpy(), gen_labels.data.cpu().numpy()], axis=0)
