@@ -248,7 +248,7 @@ for epoch in range(opt.n_epochs):
         # Update gradients for aux loss
         criterion = nn.CrossEntropyLoss()
         d_aux_loss = criterion(real_aux, labels)
-        d_aux_loss.backward()
+        d_aux_loss.backward(retain_graph=True)
 
         # Calculate discriminator accuracy
         pred = np.concatenate([real_aux.data.cpu().numpy(), fake_aux.data.cpu().numpy()], axis=0)
