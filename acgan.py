@@ -154,8 +154,6 @@ generator.apply(weights_init_normal)
 #discriminator.apply(weights_init_normal)
 
 # Configure data loader
-os.makedirs("../../data/mnist", exist_ok=True)
-
 dataroot = "..//dcgan//datasets//office-31-intact//webcam//images//"
 
 
@@ -194,6 +192,7 @@ def sample_image(n_row, batches_done):
 # ----------
 #  Training
 # ----------
+discriminator.train()
 
 for epoch in range(opt.n_epochs):
     for i, (imgs, labels) in enumerate(dataloader):
@@ -244,11 +243,6 @@ for epoch in range(opt.n_epochs):
 
         # Total discriminator loss
         d_loss = (d_real_loss + d_fake_loss) / 2
-
-        # Update gradients for aux loss
-        criterion = nn.CrossEntropyLoss()
-        d_aux_loss = criterion(real_aux, labels)
-        d_aux_loss.backward(retain_graph=True)
 
         # Calculate discriminator accuracy
         pred = np.concatenate([real_aux.data.cpu().numpy(), fake_aux.data.cpu().numpy()], axis=0)
